@@ -1,22 +1,120 @@
 <html>
+
 <head>
-	<title>Team 2's Contact Manager</title>
-	<script type="text/javascript" src="js/md5.js"></script>
-	<script type="text/javascript" src="js/code.js"></script>
-    <link href="css/styles.css" rel="stylesheet">	
-    <link href="https://fonts.googleapis.com/css?family=Ubuntu" rel="stylesheet">
+    <title>Team 2's Contact Manager</title>
 </head>
+<style>
+    body {
+        display: flex;
+        justify-content: center;
+        align-items: center;    
+        height: 100vh;           
+        font-family: Playfair Display, sans-serif;
+        background-color: #27f5e4;
+		background-image: url('');			
+		background-size: cover;
+		background-position: center;
+    }
+
+    .login-container {
+        text-align: center;
+        background: white;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    input {
+        display: block;
+        width: 250px;
+        margin: 10px auto;
+        padding: 10px;
+        border-radius: 4px;
+        border: 1px solid #000000;
+    }
+
+    button {
+        padding: 10px 20px;
+        border-radius: 4px;
+        border: none;
+        background-color: #007bff;
+        color: white;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background-color: #0056b3;
+    }
+
+    #color-container {
+	    display:none;
+	    margin-top: 20px;
+    }
+
+    #message {
+	    color:red;
+	    margin-top: 10px;
+    }
+
+	header {
+		opacity: 0.6;
+		
+	}
+
+</style>
 <body>
+    <div class ="login-container">
+	   <h2>Welcome to Team's 2 Contact Manager <br> Please Login </h2> 
+        <input type="text" id="login" placeholder="Username">
+        <input type="password" id="password" placeholder="Password">
+        <button onclick="login()">Login</button>
+		<header><strong>Don't have an account?</strong></header>
+		<button onclick="signup()">Sign Up</button>
+     
 
-<h1 id="title">Team 2's Contact Manager</h1>
+    </div>
 
-<div id="loginDiv">
-	<span id="inner-title">PLEASE LOG IN</span>
-	<input type="text" id="loginName" placeholder="Username" /><br />
-	<input type="password" id="loginPassword" placeholder="Password"/><br />
-	<button type="button" id="loginButton" class="buttons" onclick="doLogin();"> Do It </button>
-	<span id="loginResult"></span>
-</div>
+    <script>
+	let userId = "";
+function login() {
+    const loginValue = document.getElementById("login").value;
+    const passwordValue = document.getElementById("password").value;
 
+    // Clear previous message
+    document.getElementById("message").textContent = "";
+
+    fetch("LAMPAPI/Login.php", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ login: loginValue, password: passwordValue })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error === "") {
+            // Login successful
+		userId = data.userId;
+           document.getElementById("message").textContent = "Welcome, redirecting to contacts";
+			// Redirect to contact.html after a short delay
+			setTimeout(() => {
+				window.location.href = "contacts.html";
+			}, 2000);
+	} else {
+            // Login failed
+            document.getElementById("message").textContent = "Login failed: " + data.error;
+        }
+    })
+    .catch(err => {
+        console.error("Error:", err);
+        document.getElementById("message").textContent = "Server error. Please try again.";
+    });
+}
+
+function signup() {
+	window.location.href = "signup.html";
+}
+
+</script>
 </body>
 </html>
