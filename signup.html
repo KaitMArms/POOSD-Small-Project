@@ -1,7 +1,7 @@
 <html>
 
 <head>
-    <title>Team 2's Contact Manager</title>
+    <title>Sign Up</title>
 </head>
 <style>
     body {
@@ -16,7 +16,7 @@
 		background-position: center;
     }
 
-    .login-container {
+    .signup-container {
         text-align: center;
         background: white;
         padding: 30px;
@@ -46,6 +46,8 @@
         background-color: #0056b3;
     }
 
+    
+
     #color-container {
 	    display:none;
 	    margin-top: 20px;
@@ -63,15 +65,13 @@
 
 </style>
 <body>
-    <div class ="login-container">
-	   <h2>Welcome to Team's 2 Contact Manager <br> Please Login </h2> 
+    <div class ="signup-container">
+	   <h2>Sign Up  <br> Enter a Username and Password </h2> 
         <input type="text" id="login" placeholder="Username">
         <input type="password" id="password" placeholder="Password">
-        <button onclick="login()">Login</button>
-		<header><strong>Don't have an account?</strong></header>
-		<button onclick="signup()">Sign Up</button>
-     
-
+        <button onclick="login()">Sign Up</button>
+		<header><strong>Already have an account?</strong></header>
+		<button onclick="signin()">Sign In</button>
     </div>
 
     <script>
@@ -111,8 +111,8 @@ function login() {
     });
 }
 
-function signup() {
-	window.location.href = "signup.html";
+function signin() {
+	window.location.href = "index.html";
 }
 
 </script>
