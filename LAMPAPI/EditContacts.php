@@ -1,16 +1,24 @@
 <?php
     $inData = getRequestInfo();
     
-    // Check if all required fields are present
-    if (!isset($inData["firstName"]) || !isset($inData["lastName"]) || 
-        !isset($inData["phone"]) || !isset($inData["email"]) || 
-        !isset($inData["ID"]) || !isset($inData["userId"])) 
+    // Check if required identification fields are present
+    if (!isset($inData["search"]) || !isset($inData["userId"]) || 
+        !isset($inData["updates"])) 
     {
         returnWithError("Missing required fields");
         exit();
     }
 
-    $conn = new mysqli("localhost", "admin", "1234", "Contacts");
+    // Get the search criteria
+    $searchFirstName = $inData["search"]["firstName"] ?? null;
+    $searchLastName = $inData["search"]["lastName"] ?? null;
+    
+    if (!$searchFirstName && !$searchLastName) {
+        returnWithError("At least firstName or lastName must be provided in search criteria");
+        exit();
+    }
+
+    $conn = new mysqli("localhost", "admin", "1234", "CONTACTS");
     if ($conn->connect_error) 
     {
         returnWithError($conn->connect_error);
@@ -18,9 +26,9 @@
     } 
     else
     {
-        // First verify that the contact belongs to the user
-        $stmt = $conn->prepare("SELECT ID FROM Contacts WHERE ID=? AND UserID=?");
-        $stmt->bind_param("ss", $inData["ID"], $inData["userId"]);
+        // First find and verify the contact belongs to the user
+        $stmt = $conn->prepare("SELECT ID FROM Contacts WHERE FirstName=? AND LastName=? AND UserID=?");
+        $stmt->bind_param("sss", $searchFirstName, $searchLastName, $inData["userId"]);
         $stmt->execute();
         $result = $stmt->get_result();
         
@@ -32,16 +40,52 @@
             exit();
         }
         
-        // Update the contact information
-        $stmt = $conn->prepare("UPDATE Contacts SET FirstName=?, LastName=?, Phone=?, Email=? WHERE ID=? AND UserID=?");
-        $stmt->bind_param("ssssss", 
-            $inData["firstName"],
-            $inData["lastName"],
-            $inData["phone"],
-            $inData["email"],
-            $inData["ID"],
-            $inData["userId"]
-        );
+        // Get the contact ID
+        $contactId = $result->fetch_assoc()["ID"];
+        
+        // Build the update query dynamically based on what fields are provided
+        $updates = $inData["updates"];
+        $updateFields = [];
+        $updateValues = [];
+        $types = "";
+        
+        if (isset($updates["firstName"])) {
+            $updateFields[] = "FirstName=?";
+            $updateValues[] = $updates["firstName"];
+            $types .= "s";
+        }
+        if (isset($updates["lastName"])) {
+            $updateFields[] = "LastName=?";
+            $updateValues[] = $updates["lastName"];
+            $types .= "s";
+        }
+        if (isset($updates["phone"])) {
+            $updateFields[] = "Phone=?";
+            $updateValues[] = $updates["phone"];
+            $types .= "s";
+        }
+        if (isset($updates["email"])) {
+            $updateFields[] = "Email=?";
+            $updateValues[] = $updates["email"];
+            $types .= "s";
+        }
+        
+        if (empty($updateFields)) {
+            returnWithError("No fields to update");
+            exit();
+        }
+        
+        // Add the WHERE clause parameters
+        $updateValues[] = $contactId;
+        $updateValues[] = $inData["userId"];
+        $types .= "ss";
+        
+        // Prepare and execute the update query
+        $updateQuery = "UPDATE Contacts SET " . implode(", ", $updateFields) . " WHERE ID=? AND UserID=?";
+        $stmt = $conn->prepare($updateQuery);
+        
+        // Bind parameters dynamically
+        $stmt->bind_param($types, ...$updateValues);
         
         if($stmt->execute())
         {
