@@ -58,6 +58,11 @@
 	    margin-top: 10px;
     }
 
+    #signup-Message {
+        color: #27f5e4;
+        margin-top: 10px;
+    }
+
 	header {
 		opacity: 0.6;
 		
@@ -69,16 +74,23 @@
 	   <h2>Sign Up  <br> Enter a Username and Password </h2> 
         <input type="text" id="login" placeholder="Username">
         <input type="password" id="password" placeholder="Password">
-        <button onclick="login()">Sign Up</button>
+        <button onclick="signUp()">Sign Up</button>
+        <div id="message"></div>
 		<header><strong>Already have an account?</strong></header>
 		<button onclick="signin()">Sign In</button>
     </div>
 
     <script>
 	let userId = "";
-function login() {
+function signUp() {
     const loginValue = document.getElementById("login").value;
     const passwordValue = document.getElementById("password").value;
+
+     // Input validation
+    if (!loginValue || !passwordValue) {
+        document.getElementById("message").textContent = "Please enter both username and password";
+        return;
+    }
 
     // Clear previous message
     document.getElementById("message").textContent = "";
@@ -95,10 +107,10 @@ function login() {
         if (data.error === "") {
             // Login successful
 		userId = data.userId;
-           document.getElementById("message").textContent = "Welcome, redirecting to contacts";
+           document.getElementById("signup-Message").textContent = `Welcome ${data.firstName}, redirecting to contacts`;
 			// Redirect to contact.html after a short delay
 			setTimeout(() => {
-				window.location.href = "contacts.html";
+				window.location.href = "profile.html";
 			}, 2000);
 	} else {
             // Login failed
