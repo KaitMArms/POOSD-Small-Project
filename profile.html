@@ -128,9 +128,9 @@
     }
 
 </style>
-<body>
+<body onload = searchContact()>
     <div class ="contact-container">
-	   <h2>Welcome ----!<br> </h2>           <!--display users name where ---- -->
+	   <h2>Welcome <span id="userId"></span><br> </h2>          
        <h5>Enter a Name and Contact</h5><input type="text" id="name" placeholder="Name">
         <table>
             <tr>
@@ -191,6 +191,8 @@
             let srch = document.getElementById("searchText").value;
             document.getElementById("contactSearchResult").innerHTML = "";
             
+            if (srch === ""){srch = "*"} // API add in the return all signal if not there
+
             let contactList = "";
 
             let tmp = {search:srch,userId:userId};
