@@ -85,6 +85,20 @@
         background-color: #f2f2f2;
     }
 
+    .search-table-button{
+        padding: 5px 10px;
+        border-radius: 4px;
+        border: none;
+        background-color: #2837a7;
+        color: white;
+        cursor: pointer;
+        
+    }
+
+    .search-table-button:hover {
+        background-color: #1f2b83;
+    }
+
     .add-table-button{
         padding: 5px 10px;
         border-radius: 4px;
@@ -96,7 +110,7 @@
     }
 
     .add-table-button:hover {
-        background-color: #218838;
+        background-color: #1b712e;
     }
 
     .edit-table-button{
@@ -110,7 +124,7 @@
     }
 
     .edit-table-button:hover {
-        background-color: #e0a800;
+        background-color: #674e02;
     }
 
     .delete-table-button{
@@ -123,7 +137,7 @@
         
     }
     .delete-table-button:hover {
-        background-color: #c82333;
+        background-color: #72141d;
     }
 
 </style>
@@ -138,9 +152,12 @@
        <tr>
             <td> </td>
             <td> </td>
-            <td><button class="add-table-button" onclick="addContact()">Add</button>
-            <button class="edit-table-button" onclick="editContact()">Edit</button>
-            <button class="delete-table-button" onclick="deleteContact()">Delete</button> </td>
+            <td>
+                <button class="search-table-button" onclick="searchContact()">Search</button>
+                <button class="add-table-button" onclick="addContact()">Add</button>
+                <button class="edit-table-button" onclick="editContact()">Edit</button>
+                <button class="delete-table-button" onclick="deleteContact()">Delete</button> 
+            </td>
             <br>
         </tr>
         <table>
