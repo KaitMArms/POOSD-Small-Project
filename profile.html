@@ -1,7 +1,7 @@
 <html>
 
 <head>
-    <title>----'s Contact Manager</title>         <!--display users name where ---- -->
+    <title><span id="userId">'s Contact Manager</title>         <!--display users name where ---- -->
 </head>
 <style>
     body {
@@ -202,7 +202,7 @@
             
             let xhr = new XMLHttpRequest();
             xhr.open("POST", url, true);
-            xhr.setRequestHeader("Content-type", "application/json; charset=UTF-8");
+            xhr.setRequestHeader("Content-type", "application/json", "charset=UTF-8");
             try
             {
                 xhr.onreadystatechange = function() 
@@ -217,14 +217,14 @@
                             contactList += jsonObject.results[i];
                             if( i < jsonObject.results.length - 1 )
                             {
-                                colorList += "<br />\r\n";
+                                contactList += "<br />\r\n";
                             }
                         }
                         
                         document.getElementsByTagName("p")[0].innerHTML = contactList;
                     }
                     else{
-                        document.getElementsByTagName("p")[0].innerHTML = "No contact of the description could be located. Please add the contact in."
+                        document.getElementsByTagName("p")[0].innerHTML = "No contact of such description could be located. Please add the contact in."
                     }
                 };
                 xhr.send(jsonPayload);
@@ -250,7 +250,7 @@
 
             let xhr = new XMLHttpRequest();
             xhr.open("POST", url, true);
-            xhr.setRequestHeader("Content-type", "application/json;", "charset=UTF-8");
+            xhr.setRequestHeader("Content-type", "application/json; charset=UTF-8");
 
             try{
                 xhr.onreadystatechange = function() {
