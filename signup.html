@@ -79,8 +79,6 @@
     <script>
 	let userId = "";
     function login() {
-        const fNameValue = document.getElementById("firstName").value;
-        const lNameValue = document.getElementById("lastName").value;
         const loginValue = document.getElementById("login").value;
         const passwordValue = document.getElementById("password").value;
 
@@ -93,8 +91,6 @@
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({ 
-                fName: fNameValue,
-                lName: lNameValue,
                 login: loginValue, 
                 password: passwordValue, 
             })
