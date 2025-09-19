@@ -67,6 +67,8 @@
 <body>
     <div class ="signup-container">
 	   <h2>Sign Up  <br> Enter a Username and Password </h2> 
+        <input type="text" id="firstName" placeholder="First Name">
+        <input type="text" id="lastName" placeholder="Last Name">
         <input type="text" id="login" placeholder="Username">
         <input type="password" id="password" placeholder="Password">
         <button onclick="login()">Sign Up</button>
@@ -83,19 +85,24 @@ function login() {
     // Clear previous message
     document.getElementById("message").textContent = "";
 
-    fetch("LAMPAPI/Login.php", {
+    fetch("LAMPAPI/Register.php", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({ login: loginValue, password: passwordValue })
+        body: JSON.stringify({ 
+            firstName: firstName, 
+            lastName: lastName,
+            login: loginValue, 
+            password: passwordValue, 
+        })
     })
     .then(response => response.json())
     .then(data => {
         if (data.error === "") {
             // Login successful
-		userId = data.userId;
-           document.getElementById("message").textContent = "Welcome, redirecting to contacts";
+		    userId = data.userId;
+            document.getElementById("message").textContent = "Welcome, redirecting to contacts";
 			// Redirect to contact.html after a short delay
 			setTimeout(() => {
 				window.location.href = "contacts.html";
