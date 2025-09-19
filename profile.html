@@ -72,7 +72,6 @@
     table {
         overflow-y:scroll;
         display:block;
-        width: 10%;
         border-collapse: collapse;
     }
 
@@ -131,19 +130,24 @@
 <body onload = searchContact()>
     <div class ="contact-container">
 	   <h2>Welcome <span id="userId"></span><br> </h2>          
-       <h5>Enter a Name and Contact</h5><input type="text" id="name" placeholder="Name">
+       <h5>Enter contact's information:</h5>
+       <input type="text" id="fName" placeholder="First Name">
+       <input type="text" id="lName" placeholder="Last Name">
+       <input type="text" id="phoneN" placeholder="Phone Number">
+       <input type="text" id="eMail" placeholder="eMail">
+       <tr>
+            <td> </td>
+            <td> </td>
+            <td><button class="add-table-button" onclick="addContact()">Add</button>
+            <button class="edit-table-button" onclick="editContact()">Edit</button>
+            <button class="delete-table-button" onclick="deleteContact()">Delete</button> </td>
+            <br>
+        </tr>
         <table>
             <tr>
                 <th>Name</th>
-                <th>Contact</th>
-                <th>Action</th>
-            </tr>
-            <tr>
-                <td> </td>
-                <td> </td>
-                <td><button class="add-table-button" onclick="addContact()">Add</button>
-                <button class="edit-table-button" onclick="editContact()">Edit</button>
-                <button class="delete-table-button" onclick="deleteContact()">Delete</button> </td>
+                <th>Phone Number</th>
+                <th>eMail</th>
             </tr>
         </table>
 		<button class="alertbutton" onclick="signout()">Sign Out</button>
