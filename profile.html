@@ -1,7 +1,7 @@
 <html>
 
 <head>
-    <title><span id="userId">'s Contact Manager</title>         <!--display users name where ---- -->
+    <title id="userInsert">'s Contact Manager</title>         <!--display users name where ---- -->
 </head>
 <style>
     body {
@@ -152,6 +152,10 @@
     </div>
     <script>
         let userId = "";
+        function changeTitle(name){
+            document.title = document.getElementById("userID").textContent + "'s Contact Manager";
+        }
+
         function addContact() {
             const loginValue = document.getElementById("login").value;
             const passwordValue = document.getElementById("password").value;
