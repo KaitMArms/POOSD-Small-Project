@@ -70,6 +70,8 @@
 	}
 
     table {
+        overflow-y:scroll;
+        display:block;
         width: 10%;
         border-collapse: collapse;
     }
@@ -148,56 +150,123 @@
 
 
     </div>
-
     <script>
-	let userId = "";
-function addContact() {
-    const loginValue = document.getElementById("login").value;
-    const passwordValue = document.getElementById("password").value;
+        let userId = "";
+        function addContact() {
+            const loginValue = document.getElementById("login").value;
+            const passwordValue = document.getElementById("password").value;
 
-    // Clear previous message
-    document.getElementById("message").textContent = "";
+            // Clear previous message
+            document.getElementById("message").textContent = "";
 
-    fetch("LAMPAPI/Login.php", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ login: loginValue, password: passwordValue })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.error === "") {
-            // Login successful
-		userId = data.userId;
-           document.getElementById("message").textContent = "Added contact";
-			// Redirect to contact.html after a short delay
-			setTimeout(() => {
-				window.location.href = "contacts.html";
-			}, 2000);
-	} else {
-            // Login failed
-            document.getElementById("message").textContent = "Contact already exists. " + data.error;
+            fetch("LAMPAPI/Login.php", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ login: loginValue, password: passwordValue })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error === "") {
+                    // Login successful
+                userId = data.userId;
+                document.getElementById("message").textContent = "Added contact";
+                    // Redirect to contact.html after a short delay
+                    setTimeout(() => {
+                        window.location.href = "contact.html";
+                    }, 2000);
+            } else {
+                    // Login failed
+                    document.getElementById("message").textContent = "Contact already exists. " + data.error;
+                }
+            })
+            .catch(err => {
+                console.error("Error:", err);
+                document.getElementById("message").textContent = "Server error. Please try again.";
+            });
         }
-    })
-    .catch(err => {
-        console.error("Error:", err);
-        document.getElementById("message").textContent = "Server error. Please try again.";
-    });
-}
 
-function editContact() {
-    // Implement edit contact functionality
-}
+        function searchContact(){
+            let srch = document.getElementById("searchText").value;
+            document.getElementById("contactSearchResult").innerHTML = "";
+            
+            let contactList = "";
 
-function deleteContact() {
-    // Implement delete contact functionality
-}
+            let tmp = {search:srch,userId:userId};
+            let jsonPayload = JSON.stringify( tmp );
 
-function signout() {
-	window.location.href = "index.html";
-}
+            let url = urlBase + '/SearchContacts.' + extension;
+            
+            let xhr = new XMLHttpRequest();
+            xhr.open("POST", url, true);
+            xhr.setRequestHeader("Content-type", "application/json; charset=UTF-8");
+            try
+            {
+                xhr.onreadystatechange = function() 
+                {
+                    if (this.readyState == 4 && this.status == 200) 
+                    {
+                        document.getElementById("contactSearchResult").innerHTML = "Contact(s) has been retrieved";
+                        let jsonObject = JSON.parse( xhr.responseText );
+                        
+                        for( let i=0; i<jsonObject.results.length; i++ )
+                        {
+                            contactList += jsonObject.results[i];
+                            if( i < jsonObject.results.length - 1 )
+                            {
+                                colorList += "<br />\r\n";
+                            }
+                        }
+                        
+                        document.getElementsByTagName("p")[0].innerHTML = contactList;
+                    }
+                    else{
+                        document.getElementsByTagName("p")[0].innerHTML = "No contact of the description could be located. Please add the contact in."
+                    }
+                };
+                xhr.send(jsonPayload);
+            }
+            catch(err)
+            {
+                document.getElementById("contactSearchResult").innerHTML = err.message;
+            }
+        }
 
-</script>
+        function editContact() {
+            // Implement edit contact functionality
+            // If there is issues with testing this one should be dropped for time sake to priortize working add, del, & search
+        }
+
+        function deleteContact() {
+            document.getElementsById("contactSearchResult").innerHTML = "";
+
+            let tmp = { id: contactId, userId: userId };
+            let jsonPayload = JSON.stringify(tmp);
+
+            let url = urlBase + '/DeleteContact.' + extension;
+
+            let xhr = new XMLHttpRequest();
+            xhr.open("POST", url, true);
+            xhr.setRequestHeader("Content-type", "application/json;", "charset=UTF-8");
+
+            try{
+                xhr.onreadystatechange = function() {
+                    if(this.readyState == 4 && this.status == 200){
+                        document.getElementById("contactSearchResult").innerHTML = "Contact has been deleted.";
+                    }
+                };
+                xhr.send(jsonPayload);
+            }
+            catch(err){
+                document.getElementById("contactSearchResult").innerHTML = "Could not locate contact set for delete in the database. Contact was either not in the database or contact is misspelled."
+            }
+        }
+
+        function signout() {
+            window.location.href = "index.html";
+        }
+
+    </script>
 </body>
 </html>
