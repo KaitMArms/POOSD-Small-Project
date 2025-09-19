@@ -1,19 +1,18 @@
 <?php
-<?php
 
     $inData = getRequestInfo();
     
     $searchResults = "";
     $searchCount = 0;
 
-    $conn = new mysqli("localhost", "admin", "1234", "Contacts");
+    $conn = new mysqli("localhost", "admin", "1234", "CONTACTS");
     if ($conn->connect_error) 
     {
         returnWithError( $conn->connect_error );
     } 
     else
     {
-        $stmt = $conn->prepare("SELECT FirstName, LastName, Phone, Email FROM Contacts WHERE (FirstName LIKE ? OR LastName LIKE ?) AND UserID=?");
+        $stmt = $conn->prepare("SELECT FirstName, LastName, Phone, Email FROM Contacts WHERE (FirstName LIKE ? OR LastName LIKE ?) OR UserID=?");
         $searchName = "%" . $inData["search"] . "%";
         $stmt->bind_param("sss", $searchName, $searchName, $inData["userId"]);
         $stmt->execute();

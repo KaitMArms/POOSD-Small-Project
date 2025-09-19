@@ -71,61 +71,63 @@
 </style>
 <body>
     <div class ="signup-container">
-	   <h2>Sign Up  <br> Enter a Username and Password </h2> 
+	   <h2>Sign Up  <br> Enter your First Name, Last Name, <br>Username and Password </h2> 
+        <input type="text" id="firstName" placeholder="First Name">
+        <input type="text" id="lastName" placeholder="Last Name">
         <input type="text" id="login" placeholder="Username">
         <input type="password" id="password" placeholder="Password">
-        <button onclick="signUp()">Sign Up</button>
-        <div id="message"></div>
+        <button onclick="signUpLog()">Sign Up</button>
 		<header><strong>Already have an account?</strong></header>
 		<button onclick="signin()">Sign In</button>
     </div>
 
     <script>
 	let userId = "";
-function signUp() {
-    const loginValue = document.getElementById("login").value;
-    const passwordValue = document.getElementById("password").value;
+    function signUpLog() {
+        const fNameValue = document.getElementById("firstName").value;
+        const lNameValue = document.getElementById("lastName").value;
+        const loginValue = document.getElementById("login").value;
+        const passwordValue = document.getElementById("password").value;
 
-     // Input validation
-    if (!loginValue || !passwordValue) {
-        document.getElementById("message").textContent = "Please enter both username and password";
-        return;
+        // Clear previous message
+        document.getElementById("message").textContent = "";
+
+        fetch("LAMPAPI/Register.php", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ 
+                fName: fNameValue,
+                lName: lNameValue,
+                login: loginValue, 
+                password: passwordValue, 
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error === "") {
+                // Login successful
+                userId = data.userId;
+                document.getElementById("message").textContent = "Welcome, redirecting to contacts";
+                // Redirect to contact.html after a short delay
+                setTimeout(() => {
+                    window.location.href = "contact.html";
+                }, 2000);
+        } else {
+                // Login failed
+                document.getElementById("message").textContent = "Incorrect username or password. " + data.error;
+            }
+        })
+        .catch(err => {
+            console.error("Error:", err);
+            document.getElementById("message").textContent = "Server error. Please try again.";
+        });
     }
 
-    // Clear previous message
-    document.getElementById("message").textContent = "";
-
-    fetch("LAMPAPI/Login.php", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ login: loginValue, password: passwordValue })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.error === "") {
-            // Login successful
-		userId = data.userId;
-           document.getElementById("signup-Message").textContent = `Welcome ${data.firstName}, redirecting to contacts`;
-			// Redirect to contact.html after a short delay
-			setTimeout(() => {
-				window.location.href = "profile.html";
-			}, 2000);
-	} else {
-            // Login failed
-            document.getElementById("message").textContent = "Incorrect username or password. " + data.error;
-        }
-    })
-    .catch(err => {
-        console.error("Error:", err);
-        document.getElementById("message").textContent = "Server error. Please try again.";
-    });
-}
-
-function signin() {
-	window.location.href = "index.html";
-}
+    function signin() {
+        window.location.href = "index.html";
+    }
 
 </script>
 </body>

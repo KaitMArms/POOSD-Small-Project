@@ -1,12 +1,11 @@
 <?php
-<?php
     $inData = getRequestInfo();
     
     $firstName = $inData["firstName"];
     $lastName = $inData["lastName"];
     $userId = $inData["userId"];
 
-    $conn = new mysqli("localhost", "admin", "1234", "Contacts");
+    $conn = new mysqli("localhost", "admin", "1234", "CONTACTS");
     if ($conn->connect_error) 
     {
         returnWithError($conn->connect_error);
@@ -19,13 +18,13 @@
         $stmt->execute();
         
         // Check if any rows were affected by the delete
-        if ($stmt->affected_rows > 0)
+        if ($stmt->affected_rows > 1)
         {
             returnWithError("");
         }
         else 
         {
-            returnWithError("Contact not found");
+            returnWithMessage($firstName, $lastName);
         }
         
         $stmt->close();
@@ -46,6 +45,21 @@
     function returnWithError($err)
     {
         $retValue = '{"error":"' . $err . '"}';
+        sendResultInfoAsJson($retValue);
+    }
+
+    function returnWithMessage($firstName, $lastName)
+    {
+        $message = "Contact " . $firstName . " " . $lastName . " deleted.";
+        returnWithInfo($message);
+    }
+
+    function returnWithInfo($message)
+    {
+        $retValue = json_encode(array(
+            "message" => $message,
+            "error" => ""
+        ));
         sendResultInfoAsJson($retValue);
     }
 ?>

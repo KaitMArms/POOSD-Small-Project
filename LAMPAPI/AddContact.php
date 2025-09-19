@@ -7,7 +7,7 @@
 	$email = $inData["email"];
 	$userId = $inData["userId"];
 
-	$conn = new mysqli("localhost", "admin", "1234", "Contacts");
+	$conn = new mysqli("localhost", "admin", "1234", "CONTACTS");
 	if ($conn->connect_error) 
 	{
 		returnWithError( $conn->connect_error );
@@ -19,7 +19,8 @@
 		$stmt->execute();
 		$stmt->close();
 		$conn->close();
-		returnWithError("");
+		returnWithInfo($firstName, $lastName, $phone, $email, $userId);
+
 	}
 
 	function getRequestInfo()
@@ -38,5 +39,18 @@
 		$retValue = '{"error":"' . $err . '"}';
 		sendResultInfoAsJson( $retValue );
 	}
+
+	function returnWithInfo($firstName, $lastName, $phone, $email, $userId)
+{
+    $retValue = json_encode(array(
+        "firstName" => $firstName,
+        "lastName" => $lastName,
+        "phone" => $phone,
+				"email" => $email,
+				"userId" => $userId,
+        "error" => ""
+    ));
+    sendResultInfoAsJson($retValue);
+}
 	
 ?>
