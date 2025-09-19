@@ -71,14 +71,16 @@
         <input type="text" id="lastName" placeholder="Last Name">
         <input type="text" id="login" placeholder="Username">
         <input type="password" id="password" placeholder="Password">
-        <button onclick="login()">Sign Up</button>
+        <button onclick="signUpLog()">Sign Up</button>
 		<header><strong>Already have an account?</strong></header>
 		<button onclick="signin()">Sign In</button>
     </div>
 
     <script>
 	let userId = "";
-    function login() {
+    function signUpLog() {
+        const fNameValue = document.getElementById("firstName").value;
+        const lNameValue = document.getElementById("lastName").value;
         const loginValue = document.getElementById("login").value;
         const passwordValue = document.getElementById("password").value;
 
@@ -91,6 +93,8 @@
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({ 
+                fName: fNameValue,
+                lName: lNameValue,
                 login: loginValue, 
                 password: passwordValue, 
             })
