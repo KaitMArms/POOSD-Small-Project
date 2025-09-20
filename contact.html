@@ -157,7 +157,7 @@
     }
 
 </style>
-<body onload = searchContact()>
+<body onload ="searchContact()">
     <div class ="contact-container">
         <h2>Welcome <span id="userId"></span><br> </h2>   
         <div class ="contentWrapper">
@@ -171,6 +171,7 @@
                 <input type="text" id="eMail" placeholder="eMail">
 				<div id ="message"></div>
 				<div id ="contact-message"></div>
+				<h5>Manage contacts:</h5>
                 <tr>
                         <td> </td>
                         <td> </td>
@@ -196,6 +197,7 @@
                 <br>
             </div>
         </div>
+		<br>
 		<button class="alertbutton" onclick="signout()">Sign Out</button>
 
 
@@ -234,29 +236,30 @@
 
             let url = urlBase + '/AddContact.' + extension;
 
-            let xhr = new XMLHttpRequest();
-            xhr.open("POST", url, true);
-            xhr.setRequestHeader("Content-type", "application/json; charset=UTF-8");
-			
-			try{
-				xhr.onreadystatechane = function(){
-					if(this.readyState == 4 && this.status == 200){
-						document.getElementById("message").textContent = "Contact added successfully."
-						searchContact();
-					}
-				};
-				xhr.send(jsonPayload);
-			}
-			catch(err) {
-				document.getElementById("message").tectContent = err.message;
-			}
+            fetch(url, {
+				method: "POST",
+				headers: {"Content-Type" : "application/json"},
+				body: jsonPayload
+			})
+			.then(response => response.json())
+			.then(data=> {
+				if(data.error ===""){
+					document.getElementById("message").textContent = "Contact added to manager."
+					searchContact();
+				}
+				else{
+					document.getElementById("message").textContent = "Error: " + data.error;
+				}
+			})
+			.catch(err=>{
+				console.error(err);
+				document.getElementById("message").textContent = "Server error."
+			})
 		}
 
         function searchContact(){
             let srch = document.getElementById("searchText").value;
             document.getElementById("contactSearchResult").innerHTML = "";
-            
-            if (srch === ""){srch = "*"} // API add in the return all signal if not there
 
             let contactList = "";
 
@@ -307,14 +310,6 @@
             {
                 document.getElementById("contactSearchResult").innerHTML = err.message;
             }
-        }
-
-        function loadEditContact(fName, lName, phoneN, eMail){
-            document.getElementById("fName").value = fName;
-            document.getElementById("lName").value = lName;
-            document.getElementById("phoneN").value = phoneN;
-            document.getElementById("eMail").value = eMail;
-            document.getElementById("message").textContent = "Editing contact: ";
         }
 
         function editContact() {
