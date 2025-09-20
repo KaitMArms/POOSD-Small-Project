@@ -23,6 +23,22 @@
         border-radius: 8px;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
     }
+    
+    .contentWrapper{
+        display: flex;
+        flex-direction: row;
+        gap: 30px;
+        align-items: flex-start;
+    }
+
+    .inputSection{
+        flex: 1;
+        text-align: left;
+    }
+
+    .tableSection{
+        flex: 2;
+    }
 
     input {
         display: block;
@@ -143,36 +159,50 @@
 </style>
 <body onload = searchContact()>
     <div class ="contact-container">
-	   <h2>Welcome <span id="userId"></span><br> </h2>          
-       <h5>Enter contact's information:</h5>
-       <input type="text" id="fName" placeholder="First Name">
-       <input type="text" id="lName" placeholder="Last Name">
-       <input type="text" id="phoneN" placeholder="Phone Number">
-       <input type="text" id="eMail" placeholder="eMail">
-       <tr>
-            <td> </td>
-            <td> </td>
-            <td>
-                <button class="search-table-button" onclick="searchContact()">Search</button>
-                <button class="add-table-button" onclick="addContact()">Add</button>
-                <button class="edit-table-button" onclick="editContact()">Edit</button>
-                <button class="delete-table-button" onclick="deleteContact()">Delete</button> 
-            </td>
-            <br>
-        </tr>
-        <table>
-            <tr>
-                <th>Name</th>
-                <th>Phone Number</th>
-                <th>eMail</th>
-            </tr>
-        </table>
+        <h2>Welcome <span id="userId"></span><br> </h2>   
+        <div class ="contentWrapper">
+            <div class="inputSection">
+                       
+                <h5>Enter contact's information:</h5>
+                <input type="hidden" id="editingField">
+                <input type="text" id="fName" placeholder="First Name">
+                <input type="text" id="lName" placeholder="Last Name">
+                <input type="text" id="phoneN" placeholder="Phone Number">
+                <input type="text" id="eMail" placeholder="eMail">
+                <tr>
+                        <td> </td>
+                        <td> </td>
+                        <td>
+                            <button class="search-table-button" onclick="searchContact()">Search</button>
+                            <button class="add-table-button" onclick="addContact()">Add</button>
+                            <button class="edit-table-button" onclick="editContact()">Edit</button>
+                            <button class="delete-table-button" onclick="deleteContact()">Delete</button> 
+                        </td>
+                        <br>
+                </tr>
+            </div>
+            <div class="tableSection">
+                <table id="contactTable">
+                    <tr>
+                        <th>Name</th>
+                        <th>Phone Number</th>
+                        <th>eMail</th>
+                    </tr>
+                </table>
+                <p id="contactSearchResult"></p>
+                <p id="message"></p>
+                <br>
+            </div>
+        </div>
 		<button class="alertbutton" onclick="signout()">Sign Out</button>
 
 
     </div>
     <script>
         let userId = "";
+        const urlBase = "LAMPAPI";
+        const extension = "php";
+
         function changeTitle(name){
             document.title = document.getElementById("userID").textContent + "'s Contact Manager";
         }
@@ -237,13 +267,22 @@
                         document.getElementById("contactSearchResult").innerHTML = "Contact(s) has been retrieved";
                         let jsonObject = JSON.parse( xhr.responseText );
                         
+                        let table =document.getElementById("contactTable");
+                        table.innerHTML =
+                            <tr>
+                                <th>Name</th>
+                                <th>Phone Number</th>
+                                <th>Email</th>
+                            </tr>;
                         for( let i=0; i<jsonObject.results.length; i++ )
                         {
-                            contactList += jsonObject.results[i];
-                            if( i < jsonObject.results.length - 1 )
-                            {
-                                contactList += "<br />\r\n";
-                            }
+                            let row =
+                            <tr>
+                                <td>${jsonObject.results[i].firstName} ${jsonObject.results[i].lastName}</td>
+                                <td>${jsonObject.results[i].phoneN}</td>
+                                <td>${jsonObject.results[i].eMail}</td>
+                            </tr>;
+                            table.innerHTML += row;
                         }
                         
                         document.getElementsByTagName("p")[0].innerHTML = contactList;
@@ -260,9 +299,48 @@
             }
         }
 
+        function loadEditContact(fName, lName, phoneN, eMail){
+            document.getElementById("fName").value = fName;
+            document.getElementById("lName").value = lName;
+            document.getElementById("phoneN").value = phoneN;
+            document.getElementById("eMail").value = eMail;
+            document.getElementById("message").textContent = "Editing contact: ";
+        }
+
         function editContact() {
-            // Implement edit contact functionality
-            // If there is issues with testing this one should be dropped for time sake to priortize working add, del, & search
+            let fName = document.getElementById("fName").value;
+            let lName = document.getElementById("lName").value;
+            let phoneN = document.getElementById("phoneN").value;
+            let eMail = document.getElementById("eMail").value;
+
+            let tmp = 
+                {
+                    firstName: fName,
+                    lastName: lName,
+                    phoneN: phoneN,
+                    eMail: eMail,
+                    userId: userId
+                };
+            let jsonPayload = JSON.stringify(tmp);
+
+            let url = urlBase + '/UpdateContact.' + extension;
+
+            let xhr = new XMLHttpRequest();
+            xhr.open("POST", url, true);
+            xhr.setRequestHeader("Content-type", "application/json; charset=UTF-8");
+
+            try{
+                xhr.onreadystatechange = function(){
+                    if(this.readyState == 4 && this.status == 200){
+                        document.getElementById("message").textContent = "Contact has been updated."
+                        searchContact();
+                    }
+                }
+                xhr.send(jsonPayload);
+            }
+            catch (err){
+                document.getElementById("message").textContent = err.message;
+            }
         }
 
         function deleteContact() {
