@@ -1,7 +1,7 @@
 <html>
 
 <head>
-    <title>----'s Contact Manager</title>         <!--display users name where ---- -->
+    <title id="userInsert">'s Contact Manager</title>         <!--display users name where ---- -->
 </head>
 <style>
     body {
@@ -10,7 +10,7 @@
         align-items: center;    
         height: 100vh;           
         font-family: Playfair Display, sans-serif;
-        background-color: #27f5e4;
+        background-color: #4bc3b9;
 		background-image: url('');			
 		background-size: cover;
 		background-position: center;
@@ -18,7 +18,7 @@
 
     .contact-container {
         text-align: center;
-        background: white;
+        background: rgb(241, 240, 240);
         padding: 30px;
         border-radius: 8px;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
@@ -37,13 +37,13 @@
         padding: 10px 20px;
         border-radius: 4px;
         border: none;
-        background-color: #007bff;
+        background-color: #2837a7;
         color: white;
         cursor: pointer;
     }
 
     button:hover {
-        background-color: #0056b3;
+        background-color: #1f2b83;
     }
 
     .alertbutton{
@@ -72,7 +72,6 @@
     table {
         overflow-y:scroll;
         display:block;
-        width: 10%;
         border-collapse: collapse;
     }
 
@@ -86,6 +85,20 @@
         background-color: #f2f2f2;
     }
 
+    .search-table-button{
+        padding: 5px 10px;
+        border-radius: 4px;
+        border: none;
+        background-color: #2837a7;
+        color: white;
+        cursor: pointer;
+        
+    }
+
+    .search-table-button:hover {
+        background-color: #1f2b83;
+    }
+
     .add-table-button{
         padding: 5px 10px;
         border-radius: 4px;
@@ -97,7 +110,7 @@
     }
 
     .add-table-button:hover {
-        background-color: #218838;
+        background-color: #1b712e;
     }
 
     .edit-table-button{
@@ -111,7 +124,7 @@
     }
 
     .edit-table-button:hover {
-        background-color: #e0a800;
+        background-color: #674e02;
     }
 
     .delete-table-button{
@@ -124,26 +137,34 @@
         
     }
     .delete-table-button:hover {
-        background-color: #c82333;
+        background-color: #72141d;
     }
 
 </style>
-<body>
+<body onload = searchContact()>
     <div class ="contact-container">
-	   <h2>Welcome ----!<br> </h2>           <!--display users name where ---- -->
-       <h5>Enter a Name and Contact</h5><input type="text" id="name" placeholder="Name">
+	   <h2>Welcome <span id="userId"></span><br> </h2>          
+       <h5>Enter contact's information:</h5>
+       <input type="text" id="fName" placeholder="First Name">
+       <input type="text" id="lName" placeholder="Last Name">
+       <input type="text" id="phoneN" placeholder="Phone Number">
+       <input type="text" id="eMail" placeholder="eMail">
+       <tr>
+            <td> </td>
+            <td> </td>
+            <td>
+                <button class="search-table-button" onclick="searchContact()">Search</button>
+                <button class="add-table-button" onclick="addContact()">Add</button>
+                <button class="edit-table-button" onclick="editContact()">Edit</button>
+                <button class="delete-table-button" onclick="deleteContact()">Delete</button> 
+            </td>
+            <br>
+        </tr>
         <table>
             <tr>
                 <th>Name</th>
-                <th>Contact</th>
-                <th>Action</th>
-            </tr>
-            <tr>
-                <td> </td>
-                <td> </td>
-                <td><button class="add-table-button" onclick="addContact()">Add</button>
-                <button class="edit-table-button" onclick="editContact()">Edit</button>
-                <button class="delete-table-button" onclick="deleteContact()">Delete</button> </td>
+                <th>Phone Number</th>
+                <th>eMail</th>
             </tr>
         </table>
 		<button class="alertbutton" onclick="signout()">Sign Out</button>
@@ -152,6 +173,10 @@
     </div>
     <script>
         let userId = "";
+        function changeTitle(name){
+            document.title = document.getElementById("userID").textContent + "'s Contact Manager";
+        }
+
         function addContact() {
             const loginValue = document.getElementById("login").value;
             const passwordValue = document.getElementById("password").value;
@@ -191,6 +216,8 @@
             let srch = document.getElementById("searchText").value;
             document.getElementById("contactSearchResult").innerHTML = "";
             
+            if (srch === ""){srch = "*"} // API add in the return all signal if not there
+
             let contactList = "";
 
             let tmp = {search:srch,userId:userId};
@@ -200,7 +227,7 @@
             
             let xhr = new XMLHttpRequest();
             xhr.open("POST", url, true);
-            xhr.setRequestHeader("Content-type", "application/json; charset=UTF-8");
+            xhr.setRequestHeader("Content-type", "application/json", "charset=UTF-8");
             try
             {
                 xhr.onreadystatechange = function() 
@@ -215,14 +242,14 @@
                             contactList += jsonObject.results[i];
                             if( i < jsonObject.results.length - 1 )
                             {
-                                colorList += "<br />\r\n";
+                                contactList += "<br />\r\n";
                             }
                         }
                         
                         document.getElementsByTagName("p")[0].innerHTML = contactList;
                     }
                     else{
-                        document.getElementsByTagName("p")[0].innerHTML = "No contact of the description could be located. Please add the contact in."
+                        document.getElementsByTagName("p")[0].innerHTML = "No contact of such description could be located. Please add the contact in."
                     }
                 };
                 xhr.send(jsonPayload);
@@ -248,7 +275,7 @@
 
             let xhr = new XMLHttpRequest();
             xhr.open("POST", url, true);
-            xhr.setRequestHeader("Content-type", "application/json;", "charset=UTF-8");
+            xhr.setRequestHeader("Content-type", "application/json; charset=UTF-8");
 
             try{
                 xhr.onreadystatechange = function() {
