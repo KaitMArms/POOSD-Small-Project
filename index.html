@@ -106,13 +106,12 @@ function login() {
         })
     })
     .then(response => {
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.text().then(text => {
-            try {
+        return response.text().then(text =>{
+            console.log("Raw response from server:", text);
+            try{
                 return text ? JSON.parse(text) : {};
-            } catch (e) {
+            }
+            catch(e){
                 console.error("Parse error:", text);
                 throw new Error("Invalid JSON response");
             }
