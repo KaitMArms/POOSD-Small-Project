@@ -74,6 +74,7 @@
         <input type="password" id="password" placeholder="Password">
         <button onclick="login()">Login</button>
         <div id="login-message"></div> 
+        <div id="message"></div>
 		<header><strong>Don't have an account?</strong></header>
 		<button onclick="signup()">Sign Up</button>
      
@@ -129,8 +130,13 @@ function login() {
             }, 2000);
         } else {
             // Login failed
-            document.getElementById("message").textContent = 
-                "Incorrect username or password. " + data.error;
+            const messageErr = document.getElementById("message");
+            if(messageErr){
+                messageErr.textContent = "Incorrect username or password. " + (data.error || "");
+            }
+            else{
+                console.warn("Missing #message element in HTML.");
+            }
         }
     })
     .catch(err => {
