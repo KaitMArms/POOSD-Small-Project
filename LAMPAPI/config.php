@@ -1,8 +1,8 @@
 <?php
 // Database configuration for luisalban.xyz
 define('DB_HOST', 'localhost');
-define('DB_USER', 'root');
-define('DB_PASS', 'US44Poptart'); // You'll need to replace this with your actual password
+define('DB_USER', 'admin');
+define('DB_PASS', '1234'); // You'll need to replace this with your actual password
 define('DB_NAME', 'CONTACTS');
 
 // CORS configuration
