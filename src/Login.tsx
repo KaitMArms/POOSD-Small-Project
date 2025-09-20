@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import './App.css'
+import { API_URL } from './config/api';
 
 interface LoginResponse {
   id: number;
@@ -29,10 +30,10 @@ function Login() {
     setIsLoading(true);
 
     try {
-      console.log('Sending request to:', 'https://luisalban.xyz/LAMPAPI/Login.php');
+      console.log('Sending request to:', `${API_URL}/Login.php`);
       console.log('Request data:', { login: username, password: password });
       
-      const response = await fetch('https://luisalban.xyz/LAMPAPI/Login.php', {
+      const response = await fetch(`${API_URL}/Login.php`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -43,20 +44,11 @@ function Login() {
         })
       });
 
-      console.log('Response status:', response.status);
-      console.log('Response headers:', response.headers);
-      
-      const text = await response.text();
-      console.log('Raw response from server:', text);
-      
-      let data: LoginResponse;
-      try {
-        data = text ? JSON.parse(text) : { id: 0, firstName: '', lastName: '', error: 'Invalid response' };
-      } catch (e) {
-        console.error('Parse error:', text);
-        console.error('Parse error details:', e);
-        throw new Error('Invalid JSON response: ' + text.substring(0, 100));
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
+      
+      const data: LoginResponse = await response.json();
 
       console.log('Parsed response data:', data);
 

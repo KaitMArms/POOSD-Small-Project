@@ -3,65 +3,52 @@ require_once 'config.php';
 
 setCorsHeaders();
 handlePreflight();
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
 
-$inData = getRequestInfo();
+try {
+    $inData = getRequestInfo();
+    
+    // Validate input
+    if (!isset($inData["login"]) || !isset($inData["password"])) {
+        handleError("Missing login credentials");
+    }
 
-// Validate input data
-if (!isset($inData["login"]) || !isset($inData["password"])) {
-    returnWithError("Missing login credentials");
-    exit();
-}
+    $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    if ($conn->connect_error) {
+        handleError($conn->connect_error);
+    }
 
-$id = 0;
-$firstName = "";
-$lastName = "";
+    // Log the attempt (for debugging)
+    error_log("Login attempt for user: " . $inData["login"]);
 
-// Connect to your remote database
-$conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME); 	
-if ($conn->connect_error)
-{
-    returnWithError($conn->connect_error);
-    exit();
-}
+    $stmt = $conn->prepare("SELECT ID, firstName, lastName FROM Users WHERE Login=? AND Password=?");
+    if (!$stmt) {
+        handleError("Prepare failed: " . $conn->error);
+    }
 
-$stmt = $conn->prepare("SELECT ID,firstName,lastName FROM Users WHERE Login=? AND Password =?");
-$stmt->bind_param("ss", $inData["login"], $inData["password"]);
-$stmt->execute();
-$result = $stmt->get_result();
+    $stmt->bind_param("ss", $inData["login"], $inData["password"]);
+    
+    if (!$stmt->execute()) {
+        handleError("Execute failed: " . $stmt->error);
+    }
+    
+    $result = $stmt->get_result();
+    
+    if ($row = $result->fetch_assoc()) {
+        sendResultInfoAsJson(json_encode([
+            'id' => $row['ID'],
+            'firstName' => $row['firstName'],
+            'lastName' => $row['lastName'],
+            'error' => ""
+        ]));
+    } else {
+        handleError("No Records Found");
+    }
 
-if ($row = $result->fetch_assoc())
-{
-    returnWithInfo($row['firstName'], $row['lastName'], $row['ID']);
-}
-else
-{
-    returnWithError("No Records Found");
-}
+    $stmt->close();
+    $conn->close();
 
-$stmt->close();
-$conn->close();
-
-function returnWithError($err)
-{
-    $retValue = json_encode(array(
-        "id" => 0,
-        "firstName" => "",
-        "lastName" => "",
-        "error" => $err
-    ));
-    sendResultInfoAsJson($retValue);
-}
-
-function returnWithInfo($firstName, $lastName, $id)
-{
-    $retValue = json_encode(array(
-        "id" => $id,
-        "firstName" => $firstName,
-        "lastName" => $lastName,
-        "error" => ""
-    ));
-    sendResultInfoAsJson($retValue);
+} catch (Exception $e) {
+    error_log("Login error: " . $e->getMessage());
+    handleError($e->getMessage());
 }
 ?>
