@@ -176,7 +176,7 @@
                         <td> </td>
                         <td> </td>
                         <td>
-                            <button class="search-table-button" onclick="searchContact()">Search</button>
+                            <button class="search-table-button" onclick="searchContact()"> Search</button>
                             <button class="add-table-button" onclick="addContact()">Add</button>
                             <button class="edit-table-button" onclick="editContact()">Edit</button>
                             <button class="delete-table-button" onclick="deleteContact()">Delete</button> 
@@ -206,14 +206,6 @@
         let userId = "";
         const urlBase = "LAMPAPI";
         const extension = "php";
-
-		//Button Wiring
-		document.getElementById("addBtn").addEventListener("click", addContact);
-		document.getElementById("searchBtn").addEventListener("click", searchContact);
-		document.getElementById("delBtn").addEventListener("click", deleteContact);
-		document.getElementById("editBtn").addEventListener("click", editContact);
-		document.getElementById("signOutBtn").addEventListener("click", signout);
-
 
         function changeTitle(name){
             document.title = document.getElementById("userID").textContent + "'s Contact Manager";
