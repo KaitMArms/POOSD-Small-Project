@@ -1,5 +1,8 @@
 <?php
-header('Content-Type: application/json');
+require_once 'config.php';
+
+setCorsHeaders();
+handlePreflight();
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
@@ -15,7 +18,8 @@ $id = 0;
 $firstName = "";
 $lastName = "";
 
-$conn = new mysqli("localhost", "admin", "1234", "CONTACTS"); 	
+// Connect to your remote database
+$conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME); 	
 if ($conn->connect_error)
 {
     returnWithError($conn->connect_error);
@@ -38,16 +42,6 @@ else
 
 $stmt->close();
 $conn->close();
-
-function getRequestInfo()
-{
-    return json_decode(file_get_contents('php://input'), true);
-}
-
-function sendResultInfoAsJson($obj)
-{
-    echo $obj;
-}
 
 function returnWithError($err)
 {
