@@ -289,9 +289,7 @@ function Contacts() {
             onChange={(e) => {
               const value = e.target.value;
               setSearchTerm(value);
-              handleSearch(value);
             }}
-            onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
           />
           <button onClick={() => handleSearch()} disabled={isLoading}>
             {isLoading ? 'Searching...' : 'Search'}
