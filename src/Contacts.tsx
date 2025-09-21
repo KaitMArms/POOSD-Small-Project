@@ -34,7 +34,6 @@ interface AddResponse {
 
 function Contacts() {
   const [contacts, setContacts] = useState<Contact[]>([]);
-  const [filteredContacts, setFilteredContacts] = useState<Contact[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [editingContact, setEditingContact] = useState<Contact | null>(null);
@@ -65,31 +64,9 @@ function Contacts() {
     }
   }, []);
 
-  // Load contacts when userId is available
-  useEffect(() => {
-    if (userId) {
-      loadContacts();
-    }
-  }, [userId]);
-
-  // Filter contacts based on search term
-  useEffect(() => {
-    if (searchTerm === '') {
-      setFilteredContacts(contacts);
-    } else {
-      const filtered = contacts.filter(contact =>
-        contact.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        contact.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        contact.phone.includes(searchTerm) ||
-        contact.email.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-      setFilteredContacts(filtered);
-    }
-  }, [contacts, searchTerm]);
-
-  const loadContacts = async () => {
+  const fetchContacts = async (term: string) => {
     if (!userId) return;
-    
+
     setIsLoading(true);
     try {
       const response = await fetch('https://luisalban.xyz/LAMPAPI/SearchContacts.php', {
@@ -98,60 +75,45 @@ function Contacts() {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          search: '', // Empty search to get all contacts
+          search: term,
           userId: userId
         })
       });
 
       const data: SearchResponse = await response.json();
-      
+
       if (data.error === '') {
         setContacts(data.results);
-        setMessage('');
+        if (term !== '' && data.results.length === 0) {
+          setMessage('No contacts found matching your search.');
+        } else {
+          setMessage('');
+        }
       } else {
-        setMessage('Error loading contacts: ' + data.error);
+        const errorMessage = term === ''
+          ? 'Error loading contacts: ' + data.error
+          : 'No contacts found matching your search.';
+        setMessage(errorMessage);
         setContacts([]);
       }
     } catch (err) {
-      console.error('Error loading contacts:', err);
+      console.error('Error fetching contacts:', err);
       setMessage('Server error. Please try again.');
-      setContacts([]);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleSearch = async () => {
-    if (!userId) return;
-    
-    setIsLoading(true);
-    try {
-      const response = await fetch('https://luisalban.xyz/LAMPAPI/SearchContacts.php', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          search: searchTerm,
-          userId: userId
-        })
-      });
-
-      const data: SearchResponse = await response.json();
-      
-      if (data.error === '') {
-        setContacts(data.results);
-        setMessage('');
-      } else {
-        setMessage('No contacts found matching your search.');
-        setContacts([]);
-      }
-    } catch (err) {
-      console.error('Error searching contacts:', err);
-      setMessage('Server error. Please try again.');
-    } finally {
-      setIsLoading(false);
+  // Load contacts when userId is available
+  useEffect(() => {
+    if (userId) {
+      fetchContacts('');
     }
+  }, [userId]);
+
+  const handleSearch = (term?: string) => {
+    const nextTerm = typeof term === 'string' ? term : searchTerm;
+    fetchContacts(nextTerm);
   };
 
   const handleAddContact = async () => {
@@ -184,7 +146,7 @@ function Contacts() {
         setMessage('Contact added successfully!');
         setShowAddForm(false);
         setAddForm({ firstName: '', lastName: '', phone: '', email: '' });
-        loadContacts(); // Reload contacts
+        await fetchContacts(searchTerm);
       } else {
         setMessage('Error adding contact: ' + data.error);
       }
@@ -250,7 +212,7 @@ function Contacts() {
       if (data.error === '') {
         setMessage('Contact updated successfully!');
         setEditingContact(null);
-        loadContacts(); // Reload contacts
+        await fetchContacts(searchTerm);
       } else {
         setMessage('Error updating contact: ' + data.error);
       }
@@ -286,7 +248,7 @@ function Contacts() {
       
       if (data.error === '') {
         setMessage('Contact deleted successfully!');
-        loadContacts(); // Reload contacts
+        await fetchContacts(searchTerm);
       } else {
         setMessage('Error deleting contact: ' + data.error);
       }
@@ -324,10 +286,14 @@ function Contacts() {
             type="text"
             placeholder="Search contacts..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => {
+              const value = e.target.value;
+              setSearchTerm(value);
+              handleSearch(value);
+            }}
             onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
           />
-          <button onClick={handleSearch} disabled={isLoading}>
+          <button onClick={() => handleSearch()} disabled={isLoading}>
             {isLoading ? 'Searching...' : 'Search'}
           </button>
         </div>
@@ -338,10 +304,10 @@ function Contacts() {
       <div className="contacts-list">
         {isLoading ? (
           <div className="loading">Loading contacts...</div>
-        ) : filteredContacts.length === 0 ? (
+        ) : contacts.length === 0 ? (
           <div className="no-contacts">No contacts found.</div>
         ) : (
-          filteredContacts.map((contact, index) => (
+          contacts.map((contact, index) => (
             <div key={index} className="contact-item">
               <div className="contact-info">
                 <div className="contact-name">
